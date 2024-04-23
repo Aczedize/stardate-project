@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relógio e Cronômetro</title>
+    <style>
+         body {
+            /* Definir o GIF como plano de fundo */
+            background-image: url('/Users/Hayan/Downloads/202404231950-ezgif.com-video-to-gif-converter.gif');
+            
+            /* Personalizar o fundo */
+            background-size: cover; /* Ajusta o tamanho do fundo para cobrir a tela */
+            background-repeat: no-repeat; /* Não repetir o GIF */
+            background-position: center; /* Posiciona o fundo no centro */
+            height: 100vh; 
+        }
+        .clock,
+        .stopwatch {
+            font-size: 80px;
+            font-weight: 400; /* Letras mais magras */
+            font-family: 'Cambria';
+            display: inline-block;
+            background-color: rgba(0, 0, 0, 0);
+            color: #f3e73a;
+            text-shadow: 0 0 5px rgba(255, 255, 255, 0.3); /* Brilho branco */
+            padding: 3000px -800px;
+            margin: 100px;
+            position: absolute;
+            transition: opacity 0.3s ease-in-out; /* Transição de fade-out */
+        }
+
+        .clock {
+            left: 647px; /* Posição X */
+            top: 248px; /* Posição Y */
+        }
+
+        .stopwatch {
+            left: 230px; /* Posição X */
+            top: 248px; /* Posição Y */
+        }
+
+        .pauseButton {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+        }
+
+        input[type="text"] {
+            font-size: 20px;
+            margin: 5px;
+            padding: 5px;
+            text-align: center;
+            position: fixed;
+            bottom: 10px;
+            left: calc(50% - 200px); /* Ajuste conforme necessário */
+        }
+
+        #stopwatchInput {
+            left: calc(50% + 200px); /* Ajuste conforme necessário */
+        }
+    </style>
+</head>
+
+<body>
+    
+    <div class="stopwatch" id="stopwatch">0000.0</div>
+    <div class="clock" id="clock">00:00:00</div>
+    <button class="pauseButton" onclick="togglePause()">Pause/Continue</button>
+    <button class="pauseButton" onclick="reset()">Reset</button><br>
+    <input type="text" id="clockInput" placeholder="Digite o novo tempo do relógio (00:00:00 - 23:59:59)">
+    <input type="text" id="stopwatchInput" placeholder="Digite o novo tempo do cronômetro (0000.0 - 9999.9)">
+
+    <script>
+        let clockPaused = false;
+        let stopwatchPaused = false;
+
+        function togglePause() {
+            clockPaused = !clockPaused;
+            stopwatchPaused = !stopwatchPaused;
+            if (clockPaused) {
+                clearTimeout(clockTimeout);
+            } else {
+                updateClock();
+            }
+            if (stopwatchPaused) {
+                clearTimeout(stopwatchTimeout);
+            } else {
+                updateStopwatch();
+            }
+            saveState(); // Salva o estado atual ao pausar ou continuar
+        }
+
+        function reset() {
+            clearTimeout(clockTimeout);
+            clearTimeout(stopwatchTimeout);
+            document.getElementById('clock').textContent = '00:00:00';
+            document.getElementById('stopwatch').textContent = '0000.0';
+            localStorage.removeItem('clockPaused'); // Remove o estado salvo ao reiniciar
+            localStorage.removeItem('stopwatchPaused');
+            clockPaused = false;
+            stopwatchPaused = false;
+            updateClock();
+            updateStopwatch();
+        }
+
+        function saveState() {
+            localStorage.setItem('clockPaused', clockPaused);
+            localStorage.setItem('stopwatchPaused', stopwatchPaused);
+        }
+
+        function restoreState() {
+            clockPaused = localStorage.getItem('clockPaused') === 'true';
+            stopwatchPaused = localStorage.getItem('stopwatchPaused') === 'true';
+            if (clockPaused) {
+                togglePause(); // Se estava pausado, retoma a contagem
+            }
+            if (stopwatchPaused) {
+                togglePause(); // Se estava pausado, retoma a contagem
+            }
+        }
+
+        function updateClock() {
+            var clock = document.getElementById('clock');
+            if (!clock.textContent) {
+                // Se o relógio estiver vazio, definir para 00:00:00
+                clock.textContent = '00:00:00';
+            } else if (!clockPaused) {
+                // Atualizar o tempo do relógio normalmente
+                var timeParts = clock.textContent.split(':');
+                var hours = parseInt(timeParts[0]);
+                var minutes = parseInt(timeParts[1]);
+                var seconds = parseInt(timeParts[2]);
+
+                seconds++;
+
+                if (seconds === 60) {
+                    seconds = 0;
+                    minutes++;
+                }
+                if (minutes === 60) {
+                    minutes = 0;
+                    hours++;
+                }
+                if (hours === 24) {
+                    hours = 0;
+                }
+
+                // Salva o valor antigo do relógio para a transição
+                var prevClock = clock.textContent;
+                clock.textContent = 
+                    ('00' + hours).slice(-2) + ':' +
+                    ('00' + minutes).slice(-2) + ':' +
+                    ('00' + seconds).slice(-2);
+
+                // Aplica a transição de fade-out ao relógio
+                clock.style.opacity = 0;
+                setTimeout(() => {
+                    clock.style.opacity = 1;
+                    clock.textContent = clock.textContent;
+                }, 300);
+            }
+            clockTimeout = setTimeout(updateClock, 1000);
+        }
+
+        function updateStopwatch() {
+            if (!stopwatchPaused) {
+                var stopwatch = document.getElementById('stopwatch');
+                var time = parseFloat(stopwatch.textContent || 0);
+                time += 0.1;
+                if (time >= 10000) time = 0;
+
+                // Salva o valor antigo do cronômetro para a transição
+                var prevStopwatch = stopwatch.textContent;
+                stopwatch.textContent = time.toFixed(1).padStart(6, '0');
+
+                // Aplica a transição de fade-out ao cronômetro
+                stopwatch.style.opacity = 0;
+                setTimeout(() => {
+                    stopwatch.style.opacity = 1;
+                    stopwatch.textContent = stopwatch.textContent;
+                }, 300);
+
+                stopwatchTimeout = setTimeout(updateStopwatch, 1000);
+            }
+        }
+
+        restoreState(); // Restaura o estado salvo
+        updateClock();
+        updateStopwatch();
+
+        // Função para definir o novo tempo do relógio
+        document.getElementById('clockInput').addEventListener('keyup', function(event) {
+            if (event.key === 'Enter') {
+                var newTime = this.value;
+                var validTime = /^([01]?[0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]$/.test(newTime);
+                if (validTime) {
+                    document.getElementById('clock').textContent = newTime;
+                } else {
+                    alert('Digite um tempo válido no formato hh:mm:ss (00:00:00 - 23:59:59)');
+                }
+                this.value = ''; // Limpar a caixa de texto após inserir o novo tempo
+            }
+        });
+
+        // Função para definir o novo tempo do cronômetro
+        document.getElementById('stopwatchInput').addEventListener('keyup', function(event) {
+            if (event.key === 'Enter') {
+                var newTime = parseFloat(this.value);
+                if (!isNaN(newTime) && newTime >= 0 && newTime <= 9999.9) {
+                    document.getElementById('stopwatch').textContent = newTime.toFixed(1).padStart(6, '0');
+                } else {
+                    alert('Digite um tempo válido entre 0000.0 e 9999.9');
+                }
+                this.value = ''; // Limpar a caixa de texto após inserir o novo tempo
+            }
+        });
+    </script>
+</body>
+
+</html>
