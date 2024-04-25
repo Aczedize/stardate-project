@@ -7,6 +7,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Relógio e Cronômetro</title>
     <style>
+        @font-face {
+    font-family: 'Town 70 Accent Light 2';
+    src: url('fonts/town-70-accent-light-2.otf') format('opentype');
+    font-weight: normal;
+    font-style: normal;
+}
          body {
             /* Definir o GIF como plano de fundo */
             background-image: url('/Users/Hayan/Downloads/202404231950-ezgif.com-video-to-gif-converter.gif');
@@ -19,27 +25,27 @@
         }
         .clock,
         .stopwatch {
-            font-size: 80px;
-            font-weight: 400; /* Letras mais magras */
-            font-family: 'Cambria';
-            display: inline-block;
-            background-color: rgba(0, 0, 0, 0);
-            color: #f3e73a;
-            text-shadow: 0 0 5px rgba(255, 255, 255, 0.3); /* Brilho branco */
-            padding: 3000px -800px;
-            margin: 100px;
-            position: absolute;
-            transition: opacity 0.3s ease-in-out; /* Transição de fade-out */
-        }
+    font-size: 110px;
+    font-weight: 400;
+    font-family: 'Town 70 Accent Light 2', sans-serif; /* Use a fonte baixada e, se não estiver disponível, uma fonte sans-serif genérica */
+    display: inline-block;
+    background-color: rgba(0, 0, 0, 0);
+    color: #f3e73a;
+    text-shadow: 0 0 5px rgba(255, 255, 255, 0.3);
+    padding: 3000px -800px;
+    margin: 100px;
+    position: absolute;
+    transition: opacity 0.3s ease-in-out;
+}
 
         .clock {
-            left: 647px; /* Posição X */
-            top: 248px; /* Posição Y */
+            left: 659px; /* Posição X */
+            top: 237px; /* Posição Y */
         }
 
         .stopwatch {
-            left: 230px; /* Posição X */
-            top: 248px; /* Posição Y */
+            left: 235px; /* Posição X */
+            top: 237px; /* Posição Y */
         }
 
         .pauseButton {
