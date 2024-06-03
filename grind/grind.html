@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grind Counter</title>
+    <style>
+        #counter {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 24px;
+            color: yellow;
+        }
+        #controls {
+            margin-top: 20px;
+        }
+    
+    body {
+        background-image: url('https://i.postimg.cc/3w914C60/untitled.png');
+        background-size: cover; /* Para cobrir toda a área do body */
+        background-repeat: no-repeat; /* Para evitar repetição da imagem */
+    }
+    </style>
+</head>
+<body>
+    <div id="counter">000000000000000000000.0000000000000000.000000000.0000000.0000.00</div>
+    <div id="controls">
+        <button onclick="saveState()">Salvar</button>
+        <button onclick="showSavedStates()">Mostrar Estados Salvos</button>
+        <button onclick="resetCounter()">Resetar</button>
+    </div>
+    <div id="savedStates" style="display:none;">
+        <select id="statesList"></select>
+        <button onclick="loadState()">OK</button>
+    </div>
+    <script>
+        let counter = "000000000000000000000.0000000000000000.000000000.0000000.0000.00";
+        let savedStates = JSON.parse(localStorage.getItem('savedStates')) || {};
+
+        function updateCounter() {
+            let parts = counter.split('.').map(part => parseInt(part, 10));
+
+            parts[4] += 1;
+            if (parts[4] > 99) {
+                parts[4] = 0;
+                parts[3] += 1;
+                if (parts[3] > 9999) {
+                    parts[3] = 0;
+                    parts[2] += 1;
+                    if (parts[2] > 9999999) {
+                        parts[2] = 0;
+                        parts[1] += 1;
+                        if (parts[1] > 9999999999999999) {
+                            parts[1] = 0;
+                            parts[0] += 1;
+                        }
+                    }
+                }
+            }
+
+            counter = parts.map((part, index) => {
+                if (index === 0) return part.toString().padStart(21, '0');
+                if (index === 1) return part.toString().padStart(16, '0');
+                if (index === 2) return part.toString().padStart(9, '0');
+                if (index === 3) return part.toString().padStart(7, '0');
+                if (index === 4) return part.toString().padStart(2, '0');
+            }).join('.');
+
+            document.getElementById('counter').textContent = counter;
+        }
+
+        function saveState() {
+            const name = prompt("Nome para salvar o estado:");
+            if (name) {
+                savedStates[name] = counter;
+                localStorage.setItem('savedStates', JSON.stringify(savedStates));
+                alert("Estado salvo!");
+            }
+        }
+
+        function showSavedStates() {
+            const statesList = document.getElementById('statesList');
+            statesList.innerHTML = '';
+            for (let name in savedStates) {
+                let option = document.createElement('option');
+                option.value = name;
+                option.textContent = name;
+                statesList.appendChild(option);
+            }
+            document.getElementById('savedStates').style.display = 'block';
+        }
+
+        function loadState() {
+            const selectedState = document.getElementById('statesList').value;
+            if (selectedState) {
+                counter = savedStates[selectedState];
+                document.getElementById('counter').textContent = counter;
+                document.getElementById('savedStates').style.display = 'none';
+                alert("Estado carregado!");
+            }
+        }
+
+        function resetCounter() {
+            counter = "000000000000000000000.0000000000000000.000000000.0000000.0000.00";
+            document.getElementById('counter').textContent = counter;
+        }
+
+        setInterval(updateCounter, 1000);
+    </script>
+</body>
+</html>
