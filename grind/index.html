@@ -27,6 +27,7 @@
         <button onclick="saveState()">Salvar</button>
         <button onclick="showSavedStates()">Mostrar Estados Salvos</button>
         <button onclick="resetCounter()">Resetar</button>
+        <button onclick="togglePause()"><span id="pauseResumeText">Pausar</span></button>
     </div>
     <div id="savedStates" style="display:none;">
         <select id="statesList"></select>
@@ -36,8 +37,12 @@
     <script>
         let counter = "000000000000000000000.0000000000000000.000000000.0000000.0000.00";
         let savedStates = JSON.parse(localStorage.getItem('savedStates')) || {};
+        let isPaused = false;
+        let intervalId;
 
         function updateCounter() {
+            if (isPaused) return;
+
             let parts = counter.split('.').map(part => parseInt(part, 10));
 
             parts[4] += 1;
@@ -115,7 +120,12 @@
             }
         }
 
-        setInterval(updateCounter, 1000);
+        function togglePause() {
+            isPaused = !isPaused;
+            document.getElementById('pauseResumeText').textContent = isPaused ? "Retomar" : "Pausar";
+        }
+
+        intervalId = setInterval(updateCounter, 1000);
     </script>
 </body>
 </html>
